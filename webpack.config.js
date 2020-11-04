@@ -4,6 +4,9 @@ const HtmlWebpackPlugin = require("html-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const TerserPlugin = require("terser-webpack-plugin")
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin")
+const CopyWebpackPlugin = require("copy-webpack-plugin")
+const { default: ImageminWebpackPlugin } = require("imagemin-webpack-plugin")
+const imageminMozjpeg = require("imagemin-mozjpeg")
 
 const isDev = process.env.NODE_ENV === "development"
 const isProd = !isDev
@@ -53,7 +56,20 @@ module.exports = {
     }),
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
-      filename: `css/${file("css")}`,
+      filename: `assets/css/${file("css")}`,
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "src/assets/img",
+          to: "assets/img",
+        },
+      ],
+    }),
+    new ImageminWebpackPlugin({
+      disable: isDev,
+      pngquant: { quality: [0.5, 0.5] },
+      plugins: [imageminMozjpeg({ quality: 45 })],
     }),
   ],
   module: {
@@ -82,6 +98,15 @@ module.exports = {
           },
         },
       },
+      //   {
+      //     test: /\.(jpe?g|png|gif|svg)$/,
+      //     use: [
+      //       {
+      //         loader: "file-loader",
+      //         options: { name: "assets/img/[name][ext]" },
+      //       },
+      //     ],
+      //   },
     ],
   },
 }
